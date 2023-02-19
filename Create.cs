@@ -13,16 +13,12 @@ namespace CreationModelPlugin
         public static void CreateWalls(ExternalCommandData commandData)
         {
             Document doc = commandData.Application.ActiveUIDocument.Document;
-            List<Level> listLevel = new FilteredElementCollector(doc)
-                .OfClass(typeof(Level))
-                .OfType<Level>()
-                .ToList();
 
-            Level level1 = listLevel
+            Level level1 = GetLevels(doc)
                 .Where(x => x.Name.Equals("Уровень 1"))
                 .FirstOrDefault();
 
-            Level level2 = listLevel
+            Level level2 = GetLevels(doc)
                 .Where(x => x.Name.Equals("Уровень 2"))
                 .FirstOrDefault();
 
@@ -52,5 +48,33 @@ namespace CreationModelPlugin
 
             transaction.Commit();
         }
+
+        public void AddDoor(ExternalCommandData commandData, Level level1, Wall wall)
+        {
+            Document doc = commandData.Application.ActiveUIDocument.Document;
+            FamilySymbol doorType = new FilteredElementCollector(doc)
+                .OfClass(typeof(FamilySymbol))
+                .OfCategory(BuiltInCategory.OST_Doors)
+                .OfType<FamilySymbol>()
+                .Where(x => x.Name.Equals("0915 х 2134 мм"))
+                .Where(x => x.FamilyName.Equals("Одиночные-Щитовые"))
+                .FirstOrDefault();
+
+            LocationCurve hostCurve = wall.Location as LocationCurve;
+            XYZ point1 = hostCurve.Curve.GetEndPoint(0);
+            XYZ point2 = hostCurve.Curve.GetEndPoint(1);
+            XYZ point = (point1 + point2) / 2;
+        }
+
+
+        public static List<Level> GetLevels(Document doc) 
+        { 
+            List<Level> listLevel = new FilteredElementCollector(doc)
+                .OfClass(typeof(Level))
+                .OfType<Level>()
+                .ToList();
+            return listLevel;
+        }
+           
     }
 }
