@@ -14,7 +14,14 @@ namespace CreationModelPlugin
     {
         public Result Execute(ExternalCommandData commandData, ref string message, ElementSet elements)
         {
-            Create.CreateWalls(commandData);
+            //создаем стены и получаем их список
+            List<Wall> walls = CreateInstance.CreateWalls(commandData);
+            //получаем первый уровень, нужен для создания двери
+            Level level1 = CreateInstance.GetLevels(commandData).Where(x => x.Name.Equals("Уровень 1")) as Level;
+            //устанавливаем дверь в первую стену в списке
+            CreateInstance.AddDoor(commandData, level1,walls[0]);
+            //создаем окна для трех стен кроме первой
+            CreateInstance.AddWindows(commandData, level1, walls.GetRange(1, 3));
             return Result.Succeeded;
         }
     }
